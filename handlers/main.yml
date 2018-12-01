@@ -1,0 +1,33 @@
+---
+- name: restart pihole
+  service:
+    name: "{{ pihole_service_name }}"
+    state: restarted
+    enabled: yes
+
+# - name: restart dnsmasq
+#   service:
+#     name: "{{ dns_service_name }}"
+#     state: restarted
+#     enabled: yes
+#   when: pihole_service_enabled
+
+- name: restart lighttpd
+  service:
+    name: "{{ pihole_lighttpd_service_name }}"
+    state: restarted
+    enabled: yes
+
+- name: stop dhcp client
+  service:
+    name: "{{ pihole_dhcpd_service_name }}"
+    state: stopped
+    enabled: no
+
+# update-rc.d -f dhcpd remove
+# - name: pihole gravity
+# pihole -g
+# You can also use the 'args' form to provide the options.
+- name: pihole gravity
+  command: "{{ pihole_executable_path }} -g"
+  when: pihole_installed

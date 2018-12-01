@@ -1,0 +1,74 @@
+---
+## Gather Facts
+- name: Fact Gathering
+  include: facts.yml
+  tags:
+    - pihole-config
+    - pihole-install-requirements
+
+## TODO preflight check for supported OS's
+## ansible_distribution_major_version = 7 for centos, all debian bases seem
+## to be supported
+
+- name: Install Required Packages
+  include: install.yml
+  tags:
+    - pihole-install-requirements
+
+- name: Setup Configuration
+  include: configuration.yml
+
+- name: Download Install Script
+  get_url:
+    url: https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh
+    dest: "{{ ansible_user_dir }}/pihole-install.sh"
+    mode: u+rwx
+  when: not pihole_installed
+
+- name: run install script
+  command: "{{ ansible_user_dir }}/pihole-install.sh --unattended > /dev/null"
+  args:
+    creates: /usr/local/bin/pihole
+  register: script_output
+  when:
+    - not pihole_installed
+
+- debug: var=script_output
+
+## It's currently throwing a broken pipe error? - i think it's whiptail dialogs
+## TODO - preinstall packages and see if that solves it
+# - name: Run piHole install script
+#   command: "{{ ansible_user_dir }}/pihole-install.sh --unattended > /dev/null"
+#   args:
+#     creates: /usr/local/bin/pihole
+#   async: 1000
+#   poll: 10
+#   register: pihole_sleeper
+#   when: not pihole_installed
+#
+# - name: piHole - check on installation progress task
+#   async_status:
+#     jid: "{{ pihole_sleeper.ansible_job_id }}"
+#   register: job_result
+#   until: job_result.finished
+#   retries: 30
+#   when: not pihole_installed
+
+- debug:
+    msg: "Pihole does not appear to be installed, you should run the installer"
+  when: not pihole_installed
+
+- name: "Making sure DHCP client is disabled"
+  command: /bin/true
+  notify:
+    - stop dhcp client
+  when: dhcpd_service_present
+
+## no-op to restart services when it's installed?
+## TODO decide on whether to remove or not
+- name: "Restarting Pihole services"
+  command: /bin/true
+  when: pihole_installed
+  # notify:
+  #   - restart pihole
+  #   - restart lighttpd
