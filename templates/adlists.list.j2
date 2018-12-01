@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+{% for url in pihole_default_adlists.urls %}
+{{ url }}
+{% endfor %}
+
+{% if pihole_adlists.urls is defined %}
+{% for url in pihole_adlists.urls %}
+{{ url }}
+{% endfor %}
+{% endif %}

@@ -1,0 +1,72 @@
+---
+- name: "Set pihole install path"
+  stat:
+    path: "{{ pihole_executable_path }}"
+  register: pihole_binary
+
+- name: "Set pihole install state"
+  set_fact:
+    pihole_installed: "{{ pihole_binary.stat.exists | default(false) }}"
+
+- debug: var=pihole_binary
+- debug: var=pihole_installed
+
+- name: "Set default interface for pihole_listen_interface"
+  set_fact:
+    pihole_listen_interface: "{{ hostvars[inventory_hostname]['ansible_default_ipv4'].interface }}"
+  when:
+    - pihole_listen_interface is not defined
+    - "'ansible_default_ipv4' in hostvars[inventory_hostname]"
+
+- name: "Set default ip address for pihole_listen_address"
+  set_fact:
+    pihole_listen_address_ipv4: "{{ hostvars[inventory_hostname]['ansible_default_ipv4'].address }}"
+  when:
+    - pihole_listen_address_ipv4 is not defined
+    - "'ansible_default_ipv4' in hostvars[inventory_hostname]"
+
+- name: "Set default netmask for pihole_listen_netmask_ipv4"
+  set_fact:
+    pihole_listen_netmask_ipv4: "{{ hostvars[inventory_hostname]['ansible_default_ipv4'].netmask }}"
+  when:
+    - pihole_listen_netmask_ipv4 is not defined
+    - "'ansible_default_ipv4' in hostvars[inventory_hostname]"
+
+- name: "Calculate the CIDR for pihole_listen_address_ipv4"
+  set_fact:
+    pihole_listen_cidr_ipv4: "{{ (pihole_listen_address_ipv4+'/'+pihole_listen_netmask_ipv4)| ipaddr('prefix') }}"
+  when:
+    - pihole_listen_cidr_ipv4 is not defined
+
+- name: "Set default ipv6 address for pihole_listen_address"
+  set_fact:
+    pihole_listen_address_ipv6: "{{ hostvars[inventory_hostname]['ansible_default_ipv6'].address }}"
+  when:
+    - pihole_listen_address_ipv6 is not defined
+    - "'ansible_default_ipv6' in hostvars[inventory_hostname]"
+
+- name: "Set dhcp client service path"
+  stat:
+    path: "/etc/init.d/{{ pihole_dhcpd_service_name }}"
+  register: dhcpd_service_file
+
+- name: "Check whether dhcp client needs to be disabled"
+  set_fact:
+    dhcpd_service_present: "{{ dhcpd_service_file.stat.exists | default(false) }}"
+
+- name: 'See if we can install iproute2'
+  shell: apt-get install --dry-run iproute2
+  register: can_install_iproute2
+  check_mode: no
+  args:
+    warn: false
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution_major_version >= 7
+
+- name: "Check which iproute package should be installed"
+  set_fact:
+    pihole_iproute_package_name: "iproute2"
+  when:
+    - ansible_os_family == 'Debian'
+    - can_install_iproute2

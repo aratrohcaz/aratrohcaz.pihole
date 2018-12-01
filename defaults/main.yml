@@ -1,0 +1,91 @@
+---
+# DNS Services Supported by piHole
+pihole_upstream_dns:
+  providers:
+  # google
+    - 8.8.8.8
+    - 8.8.4.4
+  # open_dns
+    - 208.67.222.222
+    - 208.67.220.220
+  # norton
+    - 199.85.126.10
+    - 199.85.127.10
+  # comodo
+    - 8.26.56.26
+    - 8.20.247.20
+  # level_3
+    - 4.2.2.1
+    - 4.2.2.2
+  # quad_9
+    - 9.9.9.9
+    - 149.112.112.112
+  # dns_watch
+    - 84.200.69.80
+    - 84.200.70.40
+  # cloud_flare
+    - 1.1.1.1
+    - 1.0.0.1
+  # custom - Custom DNS gets appended to the list, but also has a #53 appended
+  # TODO - handle this
+    # - 192.168.0.25#53
+
+# Avaible options are local, single, and all
+pihole_listening_mode: single
+
+pihole_enable_query_logging: true
+pihole_install_web: true
+# Why 1 and not true, unsure yet
+pihole_lighttpd_enabled: 1
+
+# Never Forward non-FQDN queries
+pihole_dns_fqdn_required: true
+# Never reverse lookup private IPs
+pihole_dns_bogus_priv: true
+# Use DNS security
+pihole_dnssec: false
+
+## Listening interfaces
+# Leave commented out to use the anisble interface
+# pihole_listen_address_ipv4:
+# pihole_listen_netmask_ipv4:
+# pihole_listen_cidr_ipv4:
+# pihole_listen_interface:
+pihole_listen_address_ipv6:
+
+## Conditional Forwarding
+# Conditional forwarding is disabled by default
+pihole_conditional_forwarding: false
+pihole_conditional_forwarding_ip:
+pihole_conditional_forwarding_domain:
+pihole_conditional_forwarding_reverse:
+
+pihole_dhcpd_service_name: dhcpcd
+
+pihole_default_adlists:
+  urls:
+    - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+    - https://mirror1.malwaredomains.com/files/justdomains
+    - http://sysctl.org/cameleon/hosts
+    - https://zeustracker.abuse.ch/blocklist.php?download=domainblocklist
+    - https://s3.amazonaws.com/lists.disconnect.me/simple_tracking.txt
+    - https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt
+    - https://hosts-file.net/ad_servers.txt
+## You can add additional ones in your group/host vars - they'll be added to the adlist file
+# pihole_adlists:
+  # additional:
+
+## -=-=-=-=-=-=-=-=-=-=-
+# Unsure if these can/should be changed
+pihole_executable_path: /usr/local/bin/pihole
+pihole_working_directory: /etc/pihole
+
+pihole_user_name: pihole
+pihole_user_group: pihole
+
+pihole_service_name: pihole-FTL
+pihole_lighttpd_service_name: lighttpd
+
+
+## Installing
+pihole_iproute_package_name: iproute64

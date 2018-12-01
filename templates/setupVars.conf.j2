@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+PIHOLE_INTERFACE={{ pihole_listen_interface }}
+IPV4_ADDRESS={{ pihole_listen_address_ipv4 }}/{{ pihole_listen_cidr_ipv4 }}
+IPV6_ADDRESS={{ pihole_listen_address_ipv6 }}
+QUERY_LOGGING={{ pihole_enable_query_logging }}
+INSTALL_WEB={{ pihole_install_web }}
+LIGHTTPD_ENABLED={{ pihole_lighttpd_enabled }}
+
+DNS_FQDN_REQUIRED={{ pihole_dns_fqdn_required }}
+DNS_BOGUS_PRIV={{ pihole_dns_bogus_priv }}
+DNSSEC={{ pihole_dnssec }}
+DNSMASQ_LISTENING={{ pihole_listening_mode }}
+
+{% for provider in pihole_upstream_dns.providers %}
+PIHOLE_DNS_{{ loop.index }}={{ provider }}
+{% endfor %}
+
+{% if pihole_conditional_forwarding %}
+CONDITIONAL_FORWARDING={{ pihole_conditional_forwarding }}
+CONDITIONAL_FORWARDING_IP={{ pihole_conditional_forwarding_ip }}
+CONDITIONAL_FORWARDING_DOMAIN={{ pihole_conditional_forwarding_domain }}
+CONDITIONAL_FORWARDING_REVERSE={{ pihole_conditional_forwarding_reverse }}
+{% endif %}

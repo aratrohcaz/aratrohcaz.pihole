@@ -1,0 +1,68 @@
+---
+- name: 'Add PHP 7 Repo to Debian'
+  apt_repository:
+    repo: "deb http://packages.dotdeb.org {{ ansible_distribution_release }} all"
+    state: present
+    filename: dotdeb
+
+- name: Upate APT Cache
+  apt:
+    update_cache: yes
+  when:
+    - ansible_pkg_mgr == 'apt'
+
+- name: Upate Yum Cache
+  yum:
+    ## Can't update yum packages without a name command :(
+    name: curl
+    state: present
+    update_cache: yes
+  when:
+    - ansible_pkg_mgr == 'yum'
+# Seperate to make debuggin steps easier, it takes a little longer though
+- name: Install Common Core Requirements
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+      - bc
+      - curl
+      - sudo
+      - unzip
+      - wget
+      - sqlite3
+
+- name: Install iproute/iproute2
+  package:
+    name: "{{ pihole_iproute_package_name }}"
+    state: present
+
+- name: Install Debian Core Requirements
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+       - cron
+       - dnsutils
+       - iputils-ping
+       - lsof
+       - netcat
+       - psmisc
+       - idn2
+       - libcap2-bin
+       - dns-root-data
+       - resolvconf
+  when: ansible_os_family == 'Debian'
+
+- name: Install CentOS/Redhat Core Requirements
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+      - bind-utils
+      - cronie
+      - findutils
+      - nmap-ncat
+      - libidn2
+      - psmisc
+  when: ansible_os_family == 'RedHat'
