@@ -9,8 +9,8 @@
     pihole_installed: "{{ pihole_binary.stat.exists | default(false) }}"
 
 # TODO: Remove
-- debug: var=pihole_binary
-- debug: var=pihole_installed
+# - debug: var=pihole_binary
+# - debug: var=pihole_installed
 
 - name: "Set default interface for pihole_listen_interface"
   set_fact:

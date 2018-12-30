@@ -33,8 +33,6 @@
     owner: "{{ pihole_user_name }}"
     remote_src: true
     mode: 0755
-  tags:
-    - special
 
 # delegate_to: 127.0.0.1
 # - name: Tell Master
@@ -45,8 +43,6 @@
 
 - name: Copy other required files
   shell: "install -o {{ pihole_user_name }} -Dm755 -t {{ pihole_install_directory }} {{ pihole_repo_dir }}/advanced/Scripts/*.sh"
-  tags:
-    - special
 
 - name: Copy Uninstall Script
   copy:
@@ -55,8 +51,6 @@
     owner: "{{ pihole_user_name }}"
     remote_src: true
     mode: 0755
-  tags:
-    - special
 
 - name: Copy COL_TABLE
   copy:

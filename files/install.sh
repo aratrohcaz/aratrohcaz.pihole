@@ -2025,6 +2025,7 @@ clone_or_update_repos() {
 # Download FTL binary to random temp directory and install FTL binary
 FTLinstall() {
     # Local, named variables
+    ## binary is something like "pihole-FTL-linux-x86_64"
     local binary="${1}"
     local latesttag
     local str="Downloading and Installing FTL"
