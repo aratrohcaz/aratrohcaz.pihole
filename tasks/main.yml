@@ -3,8 +3,7 @@
 - name: Fact Gathering
   include: facts.yml
   tags:
-    - pihole-config
-    - pihole-install-requirements
+    - always
 
 ## TODO preflight check for supported OS's
 ## ansible_distribution_major_version = 7 for centos, all debian bases seem
@@ -40,22 +39,10 @@
     msg: "Pihole does not appear to be installed, you should run the installer"
   when: not pihole_installed
 
-- name: Bandage DHCPD Config (regardless of state)
-  blockinfile:
-    path: "{{ dhcpd_config_file }}"
-    block: |
-      interface {{ pihole_listen_interface }}
-      static ip_address={{ pihole_listen_address_ipv4 }}
-      static routers={{ pihole_gateway_ipv4 }}
-      static domain_name_servers=127.0.0.1
-    marker: "# {{ ansible_managed }} "
-  when: dhcpd_config_present
-
-- name: "Making sure DHCP client is disabled"
-  command: /bin/true
-  notify:
-    - stop dhcp client
-  when: dhcpd_service_present
+- name: Install PiHole Extras
+  include: pihole_extra.yml
+  tags:
+    - pihole-extra
 
 ## no-op to restart services when it's installed?
 ## TODO decide on whether to remove or not

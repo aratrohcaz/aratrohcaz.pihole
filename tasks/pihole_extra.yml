@@ -1,0 +1,62 @@
+---
+- name: Copy Bash Completion
+  copy:
+    src: "{{ pihole_repo_dir }}/advanced/bash-completion/pihole"
+    dest: /etc/bash_completion.d/
+    remote_src: true
+    mode: 0644
+
+- name: Create man8 directory
+  file:
+    path: "{{ man8_directory }}"
+    state: directory
+  tags:
+    - special
+
+- name: Create man5 directory
+  file:
+    path: "{{ man5_directory }}"
+    state: directory
+  tags:
+    - special
+
+- name: Copy pihole.8 man page
+  copy:
+    src: "{{ pihole_repo_dir }}/manpages/pihole.8"
+    dest: "{{ man8_directory }}"
+    remote_src: true
+  tags:
+    - special
+
+- name: Copy pihole-FTL.8 man page
+  copy:
+    src: "{{ pihole_repo_dir }}/manpages/pihole-FTL.8"
+    dest: "{{ man8_directory }}"
+    remote_src: true
+  tags:
+    - special
+
+- name: Copy pihole-FTL.conf.5 man page
+  copy:
+    src: "{{ pihole_repo_dir }}/manpages/pihole-FTL.conf.5"
+    dest: "{{ man5_directory }}"
+    remote_src: true
+  tags:
+    - special
+
+- name: Bandage DHCPD Config (regardless of state)
+  blockinfile:
+    path: "{{ dhcpd_config_file }}"
+    block: |
+      interface {{ pihole_listen_interface }}
+      static ip_address={{ pihole_listen_address_ipv4 }}
+      static routers={{ pihole_gateway_ipv4 }}
+      static domain_name_servers=127.0.0.1
+    marker: "# {{ ansible_managed }} "
+  when: dhcpd_config_present
+
+- name: "Making sure DHCP client is disabled"
+  command: /bin/true
+  notify:
+    - stop dhcp client
+  when: dhcpd_service_present
