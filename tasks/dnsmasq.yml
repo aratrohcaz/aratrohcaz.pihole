@@ -1,0 +1,8 @@
+---
+- name: Clone PiHole FTL Binary
+
+## Disable dnsmasq if it's running
+## Copy across our settings
+##    Make sure that the config files reference
+##    each other (main includes the ones from the subdirectory)
+## Install The FTL Binary and service

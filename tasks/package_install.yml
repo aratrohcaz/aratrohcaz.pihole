@@ -1,9 +1,26 @@
 ---
+- name: "Clean Apt Cache"
+  apt:
+    autoclean: yes
+    autoremove: yes
+  when:
+    - ansible_pkg_mgr == 'apt'
+
 - name: 'Add PHP 7 Repo to Debian'
   apt_repository:
     repo: "deb http://packages.dotdeb.org {{ ansible_distribution_release }} all"
     state: present
-    filename: dotdeb
+    filename: php-7-dotdeb
+  when:
+    - ansible_pkg_mgr == 'apt'
+
+- name: 'Add PHP 7 Repo KEY to Debian'
+  apt_key:
+    # id: 473041FA
+    url: https://www.dotdeb.org/dotdeb.gpg
+    state: present
+  when:
+    - ansible_pkg_mgr == 'apt'
 
 - name: Upate APT Cache
   apt:
@@ -19,7 +36,7 @@
     update_cache: yes
   when:
     - ansible_pkg_mgr == 'yum'
-# Seperate to make debuggin steps easier, it takes a little longer though
+# Seperate to make debugging steps easier, it takes a little longer though
 - name: Install Common Core Requirements
   package:
     name: "{{ item }}"
@@ -66,3 +83,5 @@
       - libidn2
       - psmisc
   when: ansible_os_family == 'RedHat'
+
+## Light httpe fastcgi needs to be handlged Line 1774

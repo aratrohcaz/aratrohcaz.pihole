@@ -32,6 +32,13 @@
     - pihole_listen_netmask_ipv4 is not defined
     - "'ansible_default_ipv4' in hostvars[inventory_hostname]"
 
+- name: "Set default gateway"
+  set_fact:
+    pihole_gateway_ipv4: "{{ hostvars[inventory_hostname]['ansible_default_ipv4'].gateway }}"
+  when:
+    - pihole_gateway_ipv4 is not defined
+    - "'ansible_default_ipv4' in hostvars[inventory_hostname]"
+
 - name: "Calculate the CIDR for pihole_listen_address_ipv4"
   set_fact:
     pihole_listen_cidr_ipv4: "{{ (pihole_listen_address_ipv4+'/'+pihole_listen_netmask_ipv4)| ipaddr('prefix') }}"
@@ -53,6 +60,15 @@
 - name: "Check whether dhcp client needs to be disabled"
   set_fact:
     dhcpd_service_present: "{{ dhcpd_service_file.stat.exists | default(false) }}"
+
+- name: "Set dhcp config file state"
+  stat:
+    path: "{{ dhcpd_config_path }}"
+  register: dhcpd_config_file
+
+- name: "Check whether dhcpd config file can be patched"
+  set_fact:
+    dhcpd_config_present: "{{ dhcpd_config_file.stat.exists | default(false) }}"
 
 - name: 'See if we can install iproute2'
   shell: apt-get install --dry-run iproute2

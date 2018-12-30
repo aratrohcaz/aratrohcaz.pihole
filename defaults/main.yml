@@ -32,8 +32,9 @@ pihole_upstream_dns:
 
 # Avaible options are local, single, and all
 pihole_listening_mode: single
-
+# Log Queries
 pihole_enable_query_logging: true
+
 pihole_install_web: true
 # Why 1 and not true, unsure yet
 pihole_lighttpd_enabled: 1
@@ -62,6 +63,7 @@ pihole_conditional_forwarding_reverse:
 
 pihole_dhcpd_service_name: dhcpcd
 
+# These are the original lists
 pihole_default_adlists:
   urls:
     - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
@@ -78,7 +80,11 @@ pihole_default_adlists:
 ## -=-=-=-=-=-=-=-=-=-=-
 # Unsure if these can/should be changed
 pihole_executable_path: /usr/local/bin/pihole
-pihole_working_directory: /etc/pihole
+pihole_config_directory: /etc/pihole
+
+pihole_install_directory: /opt/pihole
+
+pihole_working_directory: /etc/pihole ## TODO: REMOVE
 
 pihole_user_name: pihole
 pihole_user_group: pihole
@@ -86,6 +92,18 @@ pihole_user_group: pihole
 pihole_service_name: pihole-FTL
 pihole_lighttpd_service_name: lighttpd
 
-
 ## Installing
+### This name should always be changed when getting facts
 pihole_iproute_package_name: iproute64
+
+git_web_interface_url: "https://github.com/pi-hole/AdminLTE.git"
+web_install_directory: "/var/www/html/admin"
+
+git_pihole_base_url: "https://github.com/pi-hole/pi-hole.git"
+pihole_repo_dir: "/etc/.pihole"
+
+## Probably not needing touching, but putting here for usability
+## DHCPD
+dhcpd_config_path: /etc/dhcpcd.conf
+
+pihole_logrotate_user: root

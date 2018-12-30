@@ -11,52 +11,45 @@
 ## to be supported
 
 - name: Install Required Packages
-  include: install.yml
+  include: package_install.yml
   tags:
     - pihole-install-requirements
 
-- name: Setup Configuration
-  include: configuration.yml
+- name: Clone Repositories
+  include: pihole_repos.yml
+  tags:
+    - pihole-install
+    - pihole-repositories
 
-- name: Download Install Script
-  get_url:
-    url: https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh
-    dest: "{{ ansible_user_dir }}/pihole-install.sh"
-    mode: u+rwx
-  when: not pihole_installed
+- name: Install PiHole
+  include: pihole_install.yml
+  tags:
+    - pihole-install
 
-- name: run install script
-  command: "{{ ansible_user_dir }}/pihole-install.sh --unattended > /dev/null"
-  args:
-    creates: /usr/local/bin/pihole
-  register: script_output
-  when:
-    - not pihole_installed
-
-- debug: var=script_output
-
-## It's currently throwing a broken pipe error? - i think it's whiptail dialogs
-## TODO - preinstall packages and see if that solves it
-# - name: Run piHole install script
-#   command: "{{ ansible_user_dir }}/pihole-install.sh --unattended > /dev/null"
-#   args:
-#     creates: /usr/local/bin/pihole
-#   async: 1000
-#   poll: 10
-#   register: pihole_sleeper
+## TODO release is based off of hash of the install script - so we can detect changes
+# - name: Download Install Script
+#   get_url:
+#     url: https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh
+#     dest: "{{ ansible_user_dir }}/pihole-install.sh"
+#     mode: u+rwx
 #   when: not pihole_installed
-#
-# - name: piHole - check on installation progress task
-#   async_status:
-#     jid: "{{ pihole_sleeper.ansible_job_id }}"
-#   register: job_result
-#   until: job_result.finished
-#   retries: 30
-#   when: not pihole_installed
+
+## TODO - Handle firewall rules
 
 - debug:
     msg: "Pihole does not appear to be installed, you should run the installer"
   when: not pihole_installed
+
+- name: Bandage DHCPD Config (regardless of state)
+  blockinfile:
+    path: "{{ dhcpd_config_file }}"
+    block: |
+      interface {{ pihole_listen_interface }}
+      static ip_address={{ pihole_listen_address_ipv4 }}
+      static routers={{ pihole_gateway_ipv4 }}
+      static domain_name_servers=127.0.0.1
+    marker: "# {{ ansible_managed }} "
+  when: dhcpd_config_present
 
 - name: "Making sure DHCP client is disabled"
   command: /bin/true
@@ -69,6 +62,6 @@
 - name: "Restarting Pihole services"
   command: /bin/true
   when: pihole_installed
-  # notify:
-  #   - restart pihole
-  #   - restart lighttpd
+  notify:
+    - restart pihole
+    - restart lighttpd

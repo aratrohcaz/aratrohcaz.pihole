@@ -1,0 +1,26 @@
+# {{ ansible_managed }}
+/var/log/pihole.log {
+	{% if pihole_logrotate_user is defined %}
+	su {{ pihole_logrotate_user }}
+	{% endif %}
+	daily
+	copytruncate
+	rotate 5
+	compress
+	delaycompress
+	notifempty
+	nomail
+}
+
+/var/log/pihole-FTL.log {
+	{% if pihole_logrotate_user is defined %}
+	su {{ pihole_logrotate_user }}
+	{% endif %}
+	weekly
+	copytruncate
+	rotate 3
+	compress
+	delaycompress
+	notifempty
+	nomail
+}
