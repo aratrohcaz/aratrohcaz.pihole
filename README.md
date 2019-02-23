@@ -16,11 +16,17 @@ Testing/deploying on Debian, Centos is considered - but not tested against yet. 
 ## TODO
 - Start and Finish handling of firewall rules
 - Start and Finish handling of lightttpd
-- General Clean Up
+  - Install PHP DONE
+  - Install Lighttpd DONE
+  - Configure vhosts
+  - enable and start services (done?)
+  - reload of lighttpd when configs change
 - Start and Finish handling of pihole-FTL
 - Set SELinux to Permissive (or bomb out if it's enforcing?)
 - Support password generation if none-specified
 - Disable DNSStubListener
+- Config cron
+- Free Space Check
 
 ## Future
 - Add detection to check when a new release comes out and see if the script needs updating
