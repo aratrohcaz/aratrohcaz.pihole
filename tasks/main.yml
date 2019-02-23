@@ -13,6 +13,7 @@
   include: package_install.yml
   tags:
     - pihole-install-requirements
+    - special
 
 - name: Clone Repositories
   include: pihole_repos.yml

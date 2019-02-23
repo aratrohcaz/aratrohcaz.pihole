@@ -16,7 +16,6 @@
 
 - name: 'Add PHP 7 Repo KEY to Debian'
   apt_key:
-    # id: 473041FA
     url: https://www.dotdeb.org/dotdeb.gpg
     state: present
   when:
@@ -36,6 +35,16 @@
     update_cache: yes
   when:
     - ansible_pkg_mgr == 'yum'
+
+- name: Remove conflicting packages
+  package:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+      - apache2
+      - apache2ctl
+      - apachectl
+
 # Seperate to make debugging steps easier, it takes a little longer though
 - name: Install Common Core Requirements
   package:
@@ -48,6 +57,7 @@
       - unzip
       - wget
       - sqlite3
+      - lighttpd
 
 - name: Install iproute/iproute2
   package:
@@ -84,4 +94,22 @@
       - psmisc
   when: ansible_os_family == 'RedHat'
 
-## Light httpe fastcgi needs to be handlged Line 1774
+- name: Install web requirements (Default PHP)
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - php
+    - php-sqlite3
+    - php-common
+    - php-cgi
+    - php-json
+  state: present
+  when:
+    - can_install_php.rc == 0
+    - can_install_sqlite3.rc == 0
+    - ansible_os_family == 'Debian'
+
+
+## Light https fastcgi needs to be handlged Line 1774
+# php7.0-x

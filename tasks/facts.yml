@@ -88,6 +88,29 @@
     - ansible_os_family == 'Debian'
     - can_install_iproute2
 
+# Check to see which version of PHP will be installed
+- name: 'See if we can install PHP'
+  shell: apt-get install --dry-run php
+  register: can_install_php
+  check_mode: no
+  args:
+    warn: false
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution_major_version >= 7
+
+# Check to see which version of SQLite will be installed
+- name: 'See if we can install sqlite3'
+  shell: apt-get install --dry-run php-sqlite3
+  register: can_install_sqlite3
+  check_mode: no
+  args:
+    warn: false
+  when:
+    - ansible_os_family == 'Debian'
+    - ansible_distribution_major_version >= 7
+    - can_install_php.rc == 0
+
 - name: "Set man8 Directory"
   set_fact:
     man8_directory: "/usr/local/share/man/man8"
