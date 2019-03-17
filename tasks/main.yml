@@ -5,6 +5,13 @@
   tags:
     - always
 
+
+- name: Clone Repositories
+  include: pihole_repos.yml
+  tags:
+    - pihole-install
+    - pihole-repositories
+
 ## TODO preflight check for supported OS's
 ## ansible_distribution_major_version = 7 for centos, all debian bases seem
 ## to be supported
@@ -18,12 +25,7 @@
   include: lighttpd_configure.yml
   tags:
     - pihole-install-requirements
-
-- name: Clone Repositories
-  include: pihole_repos.yml
-  tags:
-    - pihole-install
-    - pihole-repositories
+    - special
 
 - name: Install PiHole
   include: pihole_install.yml

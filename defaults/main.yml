@@ -101,6 +101,9 @@ web_install_directory: "/var/www/html/admin"
 git_pihole_base_url: "https://github.com/pi-hole/pi-hole.git"
 pihole_repo_dir: "/etc/.pihole"
 
+pihole_ftl_base_url: "https://github.com/pi-hole/FTL/releases/download/"
+pihole_ftl_binary_path: "/usr/bin/pihole-FTL"
+
 ## Probably not needing touching, but putting here for usability
 ## DHCPD
 dhcpd_config_path: /etc/dhcpcd.conf
@@ -115,3 +118,9 @@ pihole_lighttpd_config_dest: "/etc/lighttpd/lighttpd.conf"
 pihole_lighttpd_external_file: "/etc/lighttpd/external.conf"
 pihole_lighttpd_mod_manager: "lighty-enable-mod"
 pihole_lighttpd_enable_modules: false
+pihole_lighttpd_blocked_path: "/var/www/html/pihole/"
+pihole_default_pages:
+  - /var/www/html/index.lighttpd.html
+  - /var/www/html/index.html
+# Leave this empty, a fact sets it
+pihole_remove_pages: []

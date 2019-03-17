@@ -8,9 +8,18 @@
   set_fact:
     pihole_installed: "{{ pihole_binary.stat.exists | default(false) }}"
 
-# TODO: Remove
-# - debug: var=pihole_binary
-# - debug: var=pihole_installed
+- name: "Is lighty-enable-mod present"
+  shell: "which {{ pihole_lighttpd_mod_manager }}"
+  register: pihole_lighttpd_enable_mod_path
+  check_mode: no
+  args:
+    warn: false
+
+- name: "Set enable lighttpd modules"
+  set_fact:
+    pihole_lighttpd_enable_modules: true
+  when:
+    - pihole_lighttpd_enable_mod_path.rc == 0
 
 - name: "Set default interface for pihole_listen_interface"
   set_fact:
@@ -134,3 +143,59 @@
 - name: "Set Update Version Check Random Hour"
   set_fact:
     pihole_version_rand_hour: "{{ 3 |random(seed=inventory_hostname) }}"
+
+- name: Get Latest Tag URL
+  uri:
+    url: https://github.com/pi-hole/FTL/releases/latest
+    method: HEAD
+  register: latest_tag_url
+
+# - debug: var=latest_tag_url
+
+- name: Parse Latest version
+  shell: "echo {{ latest_tag_url.url }} | awk -F '/' '{print $NF}'"
+  register: latest_tag_result
+
+- name: Set Latest version
+  set_fact:
+    latest_tag: "{{ latest_tag_result.stdout }}"
+
+## TODO architecture detection for FTL binary for now, just hard code to x86_64
+- name: Set FTL Architecture
+  set_fact:
+    # pihole_ftl_architecture: 'pihole-FTL-linux-x86_32'
+    pihole_ftl_architecture: 'pihole-FTL-linux-x86_64'
+  # register:
+
+- name: Set full url for FTL
+  set_fact:
+    pihole_ftl_url: "{{ pihole_ftl_base_url }}{{ latest_tag }}/{{pihole_ftl_architecture}}"
+
+- debug: var=pihole_ftl_url
+
+- name: Set Lighttpd Config file
+  set_fact:
+    pihole_lighttpd_config_file: 'lighttpd.conf.fedora'
+  when:
+    - ansible_os_family == 'Fedora'
+
+- name: "Set dhcp client service path"
+  stat:
+    path: "/etc/init.d/{{ pihole_dhcpd_service_name }}"
+  register: dhcpd_service_file
+
+- name: "Check whether dhcp client needs to be disabled"
+  set_fact:
+    dhcpd_service_present: "{{ dhcpd_service_file.stat.exists | default(false) }}"
+
+- name: Checking whether defaults need to be removed
+  stat:
+    path: "{{ item }}"
+    get_checksum: no
+  with_items: "{{ pihole_default_pages }}"
+  register: pihole_remove_pages_found
+
+- name: Build a list of all the security group names.
+  set_fact:
+    pihole_remove_pages: "{{ pihole_remove_pages_found | json_query('results[*].stat.path') }}"
+

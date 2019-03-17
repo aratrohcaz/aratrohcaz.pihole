@@ -48,25 +48,54 @@
   when:
     - pihole_lighttpd_enable_modules
 
-    local str="Creating directory for blocking page, and copying files"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # Install the directory
-    install -d /var/www/html/pihole
-    # and the blockpage
-    install -D ${PI_HOLE_LOCAL_REPO}/advanced/{index,blockingpage}.* /var/www/html/pihole/
+    # # Install the directory
+- name: Create piHole Web Directory
+  file:
+    path: "{{ pihole_lighttpd_blocked_path }}"
+    state: directory
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+    mode: 0755
 
-    # Remove superseded file
-    if [[ -e "/var/www/html/pihole/index.js" ]]; then
-        rm "/var/www/html/pihole/index.js"
-    fi
+## TODO come back and paramitise the index and block files
+- name: "Copy Block Page"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ pihole_lighttpd_blocked_path }}"
+    remote_src: true
+    mode: 0644
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+  with_items:
+    - "{{ pihole_repo_dir }}/advanced/index.php"
+    - "{{ pihole_repo_dir }}/advanced/blockingpage.css"
 
-    printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
+- name: Remove superseded file
+  file:
+    path: "/var/www/html/pihole/index.js"
+    state: absent
 
-    local str="Backing up index.lighttpd.html"
-    printf "  %b %s..." "${INFO}" "${str}"
-    # If the default index file exists,
-    if [[ -f "/var/www/html/index.lighttpd.html" ]]; then
-        # back it up
-        mv /var/www/html/index.lighttpd.html /var/www/html/index.lighttpd.orig
-        printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
-    # Otherwise,
+- name: "Copy Default Pages Page"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ pihole_lighttpd_blocked_path }}"
+    remote_src: true
+    mode: 0644
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+  with_items:
+    - "{{ pihole_repo_dir }}/advanced/index.php"
+    - "{{ pihole_repo_dir }}/advanced/blockingpage.css"
+
+- name: "Make backups of Default Pages"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ item }}-{{ ansible_date_time.date }}.old"
+    remote_src: true
+  with_items: "{{ pihole_remove_pages }}"
+
+- name: Remove Default files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items: "{{ pihole_remove_pages }}"
