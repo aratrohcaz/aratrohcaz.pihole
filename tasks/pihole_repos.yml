@@ -4,12 +4,10 @@
     repo: "{{ git_pihole_base_url }}"
     dest: "{{ pihole_repo_dir }}"
     version: "HEAD"
-  when: pihole_install_web
 
 - name: Clone Web Interface Repo
   git:
     repo: "{{ git_web_interface_url }}"
     dest: "{{ web_install_directory }}"
     version: "HEAD"
-    # version: release-0.22
   when: pihole_install_web

@@ -13,7 +13,11 @@
   include: package_install.yml
   tags:
     - pihole-install-requirements
-    - special
+
+- name: Install Required Packages
+  include: lighttpd_configure.yml
+  tags:
+    - pihole-install-requirements
 
 - name: Clone Repositories
   include: pihole_repos.yml
@@ -25,14 +29,6 @@
   include: pihole_install.yml
   tags:
     - pihole-install
-
-## TODO release is based off of hash of the install script - so we can detect changes
-# - name: Download Install Script
-#   get_url:
-#     url: https://raw.githubusercontent.com/pi-hole/pi-hole/master/automated%20install/basic-install.sh
-#     dest: "{{ ansible_user_dir }}/pihole-install.sh"
-#     mode: u+rwx
-#   when: not pihole_installed
 
 ## TODO - Handle firewall rules
 

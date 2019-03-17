@@ -1,0 +1,72 @@
+---
+## setup the directories
+- name: Create LigHTTPD directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+  with_items:
+    - /var/run/lighttpd
+    - /var/run/compress
+    - /var/run/uploads
+
+- name: Create www html folder
+  file:
+    path: "/var/www/html"
+    state: directory
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+    mode: 0755
+
+## Handle copying of the config
+- name: Ensure External Config Exists
+  copy:
+    content: ""
+    dest: "{{ pihole_lighttpd_external_file }}"
+    force: no
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Copy LigHTTPD config
+  copy:
+    src: "{{ pihole_repo_dir }}/advanced/{{ pihole_lighttpd_config_file }}"
+    dest: "{{ pihole_lighttpd_config_dest }}"
+    remote_src: true
+    mode: 0644
+    backup: true
+    owner: "{{ pihole_lighttpd_user }}"
+    group: "{{ pihole_lighttpd_user }}"
+  notify:
+    - restart lighttpd
+
+- name: Enable LigHTTPD Modules
+  # shell: "{{ pihole_lighttpd_mod_manager }} fastcgi fastcgi-php"
+  shell: "{{ pihole_lighttpd_mod_manager }} fastcgi fastcgi-php > /dev/null"
+  ignore_errors: yes
+  when:
+    - pihole_lighttpd_enable_modules
+
+    local str="Creating directory for blocking page, and copying files"
+    printf "  %b %s..." "${INFO}" "${str}"
+    # Install the directory
+    install -d /var/www/html/pihole
+    # and the blockpage
+    install -D ${PI_HOLE_LOCAL_REPO}/advanced/{index,blockingpage}.* /var/www/html/pihole/
+
+    # Remove superseded file
+    if [[ -e "/var/www/html/pihole/index.js" ]]; then
+        rm "/var/www/html/pihole/index.js"
+    fi
+
+    printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
+
+    local str="Backing up index.lighttpd.html"
+    printf "  %b %s..." "${INFO}" "${str}"
+    # If the default index file exists,
+    if [[ -f "/var/www/html/index.lighttpd.html" ]]; then
+        # back it up
+        mv /var/www/html/index.lighttpd.html /var/www/html/index.lighttpd.orig
+        printf "%b  %b %s\\n" "${OVER}" "${TICK}" "${str}"
+    # Otherwise,

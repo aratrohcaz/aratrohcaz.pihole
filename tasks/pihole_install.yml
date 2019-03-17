@@ -8,6 +8,14 @@
     append: yes
     state: present
 
+- name: Add pihole user to Web Group
+  user:
+    name: "{{ pihole_user_name }}"
+    groups: "{{ pihole_lighttpd_group }}"
+    append: yes
+  when:
+    - pihole_install_web == true
+
 - name: Create pihole config directory
   file:
     path: "{{ pihole_config_directory }}"
@@ -77,33 +85,6 @@
     group: "{{ pihole_user_group }}"
     owner: "{{ pihole_user_name }}"
     mode: 0664
-
-- name: Get Latest Tag URL
-  uri:
-    url: https://github.com/pi-hole/FTL/releases/latest
-    method: HEAD
-  register: latest_tag_url
-  tags:
-    - special
-
-- name: Parse Latest version
-  shell: "echo {{ latest_tag_url.url }} | awk -F '/' '{print $NF}'"
-  register: latest_tag
-  tags:
-    - special
-## Can now move onto line 2044 - version got!
-# - name: "Set pihole install state"
-#   set_fact:
-#     pihole_installed: "{{ pihole_binary.stat.exists | default(false) }}"
-
-# TODO: Remove
-- debug: var=latest_tag.stdout
-  tags:
-    - special
-    ## WORKS
-- debug: var=latest_tag_url.url
-  tags:
-    - special
 #endregion
 
 - name: "Configure piHole Settings"

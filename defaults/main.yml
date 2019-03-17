@@ -90,7 +90,6 @@ pihole_user_name: pihole
 pihole_user_group: pihole
 
 pihole_service_name: pihole-FTL
-pihole_lighttpd_service_name: lighttpd
 
 ## Installing
 ### This name should always be changed when getting facts
@@ -107,3 +106,12 @@ pihole_repo_dir: "/etc/.pihole"
 dhcpd_config_path: /etc/dhcpcd.conf
 
 pihole_logrotate_user: root
+
+pihole_lighttpd_user: www-data
+pihole_lighttpd_group: www-data
+pihole_lighttpd_service_name: lighttpd
+pihole_lighttpd_config_file: "lighttpd.conf.debian"
+pihole_lighttpd_config_dest: "/etc/lighttpd/lighttpd.conf"
+pihole_lighttpd_external_file: "/etc/lighttpd/external.conf"
+pihole_lighttpd_mod_manager: "lighty-enable-mod"
+pihole_lighttpd_enable_modules: false

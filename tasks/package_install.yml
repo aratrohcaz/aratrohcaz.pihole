@@ -86,12 +86,12 @@
     name: "{{ item }}"
     state: present
   with_items:
-      - bind-utils
-      - cronie
-      - findutils
-      - nmap-ncat
-      - libidn2
-      - psmisc
+    - bind-utils
+    - cronie
+    - findutils
+    - nmap-ncat
+    - libidn2
+    - psmisc
   when: ansible_os_family == 'RedHat'
 
 - name: Install web requirements (Default PHP)
@@ -110,6 +110,5 @@
     - can_install_sqlite3.rc == 0
     - ansible_os_family == 'Debian'
 
-
-## Light https fastcgi needs to be handlged Line 1774
+## Light https fastcgi needs to be handled Line 1774
 # php7.0-x
