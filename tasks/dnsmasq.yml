@@ -1,5 +1,6 @@
 ---
 - name: Clone PiHole FTL Binary
+# TODO configure dnsmasq
 
 ## Disable dnsmasq if it's running
 ## Copy across our settings

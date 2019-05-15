@@ -9,11 +9,9 @@
     pihole_installed: "{{ pihole_binary.stat.exists | default(false) }}"
 
 - name: "Is lighty-enable-mod present"
-  shell: "which {{ pihole_lighttpd_mod_manager }}"
+  command: "which {{ pihole_lighttpd_mod_manager | quote }}"
   register: pihole_lighttpd_enable_mod_path
-  check_mode: no
-  args:
-    warn: false
+  failed_when: pihole_lighttpd_enable_mod_path.rc >= 2
 
 - name: "Set enable lighttpd modules"
   set_fact:
@@ -108,6 +106,13 @@
     - ansible_os_family == 'Debian'
     - ansible_distribution_major_version >= 7
 
+- name: "See if system is using systemd"
+  set_fact:
+    pihole_service_uses_system_d: true
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version is version_compare('8', '>=')) or
+        (ansible_distribution in ['RedHat','CentOS'] and ansible_distribution_version is version_compare('7', '>=')) or
+        (ansible_distribution == 'Ubuntu' and ansible_distribution_version is version_compare('15', '>='))
+
 # Check to see which version of SQLite will be installed
 - name: 'See if we can install sqlite3'
   shell: apt-get install --dry-run php-sqlite3
@@ -148,17 +153,17 @@
   uri:
     url: https://github.com/pi-hole/FTL/releases/latest
     method: HEAD
-  register: latest_tag_url
+  register: latest_ftl_tag_url
 
 # - debug: var=latest_tag_url
 
 - name: Parse Latest version
-  shell: "echo {{ latest_tag_url.url }} | awk -F '/' '{print $NF}'"
-  register: latest_tag_result
+  shell: "echo {{ latest_ftl_tag_url.url }} | awk -F '/' '{print $NF}'"
+  register: latest_ftl_tag_result
 
 - name: Set Latest version
   set_fact:
-    latest_tag: "{{ latest_tag_result.stdout }}"
+    latest_tag: "{{ latest_ftl_tag_result.stdout }}"
 
 ## TODO architecture detection for FTL binary for now, just hard code to x86_64
 - name: Set FTL Architecture

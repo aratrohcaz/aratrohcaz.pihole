@@ -91,7 +91,7 @@
 
 - name: Install FTL Binary
   get_url:
-    url: ""
+    url: "{{ pihole_ftl_url }}"
     dest: "{{ pihole_ftl_binary_path }}"
     mode: 0755
     # checksum: "sha1:{{ pihole_ftl_base_url }}{{ latest_tag }}/{{pihole_ftl_architecture}}.sha1"
@@ -130,6 +130,5 @@
     src: "{{ pihole_repo_dir }}/advanced/Templates/pihole.sudo"
     dest: "/etc/sudoers.d/pihole"
     remote_src: true
-    # cp ${PI_HOLE_LOCAL_REPO}/advanced/Templates/pihole.sudo /etc/sudoers.d/pihole
     # # Add lighttpd user (OS dependent) to sudoers file
 

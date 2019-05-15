@@ -103,7 +103,9 @@ pihole_repo_dir: "/etc/.pihole"
 
 pihole_ftl_base_url: "https://github.com/pi-hole/FTL/releases/download/"
 pihole_ftl_binary_path: "/usr/bin/pihole-FTL"
+pihole_ftl_pid_file: "pihole-FTL.pid"
 
+pihole_service_uses_system_d: false
 ## Probably not needing touching, but putting here for usability
 ## DHCPD
 dhcpd_config_path: /etc/dhcpcd.conf
