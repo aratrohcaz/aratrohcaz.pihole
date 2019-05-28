@@ -104,7 +104,6 @@
     - php-common
     - php-cgi
     - php-json
-  state: present
   when:
     - can_install_php.rc == 0
     - can_install_sqlite3.rc == 0
