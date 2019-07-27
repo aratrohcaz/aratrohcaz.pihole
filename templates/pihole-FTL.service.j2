@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+[Unit]
+Description=pihole-FTL Daemon
+After=syslog.target network.target remote-fs.target
+
+[Service]
+Type=forking
+User={{ pihole_user_name }}
+
+ExecStart={{ pihole_ftl_binary_path }}
+PIDFile=/run/{{ pihole_ftl_pid_file }}
+
+TimeoutStartSec=30
+TimeoutStopSec=30
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

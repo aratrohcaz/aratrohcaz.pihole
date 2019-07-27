@@ -86,8 +86,24 @@
 - name: Install pihole-FTL Service
   copy:
     src: "{{ pihole_repo_dir }}/advanced/Templates/pihole-FTL.service"
-    dest: "/etc/init.d/pihole-FTL"
+    dest: "/etc/init.d/pihole-FTL.service"
     remote_src: true
+  when: pihole_service_uses_system_d == false
+
+- name: Install pihole-FTL Service (systemd)
+  include: pihole_systemd.yml
+  # when: pihole_service_uses_system_d == true
+  tags:
+    - pihole-service
+
+- name: 'Make sure Local DNS Queries can be resolved'
+  shell: 'echo "nameserver 127.0.0.1" | /sbin/resolvconf -a lo.piholeFTL'
+  tags:
+    - pihole-service
+
+- name: Enabling pihole-FTL service (systemd)
+  shell: 'systemctl enable pihole-FTL'
+  when: pihole_service_uses_system_d
 
 - name: Install FTL Binary
   get_url:
@@ -132,3 +148,6 @@
     remote_src: true
     # # Add lighttpd user (OS dependent) to sudoers file
 
+# - name: Allow LightHTTPD to execute pihole commands
+# pihole_lighttpd_user
+    # echo "${LIGHTTPD_USER} ALL=NOPASSWD: /usr/local/bin/pihole" >> /etc/sudoers.d/pihole

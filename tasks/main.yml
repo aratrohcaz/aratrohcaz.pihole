@@ -51,3 +51,5 @@
   notify:
     - restart pihole
     - restart lighttpd
+  tags:
+    - special

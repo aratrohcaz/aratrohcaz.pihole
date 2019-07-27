@@ -49,6 +49,7 @@
     - pihole_lighttpd_enable_modules
 
     # # Install the directory
+    # install -d /var/www/html/pihole
 - name: Create piHole Web Directory
   file:
     path: "{{ pihole_lighttpd_blocked_path }}"
@@ -86,6 +87,8 @@
   with_items:
     - "{{ pihole_repo_dir }}/advanced/index.php"
     - "{{ pihole_repo_dir }}/advanced/blockingpage.css"
+
+    # command: touch example{{ansible_date_time.date}}.log
 
 - name: "Make backups of Default Pages"
   copy:
